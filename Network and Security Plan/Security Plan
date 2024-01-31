@@ -1,0 +1,26 @@
+Task 5.1: Design a network diagram depicting how the components of your sample application interact with each other and external services.
+
+Network Diagrame was added into the repo.
+
+
+
+Task 5.2: Explain the security measures you would implement to protect the application. This should
+cover aspects like firewall rules, network segmentation, data encryption, and user authentication.
+
+Firewall Rules and Network Segmentation:
+
+VPC : Ensure that your AWS VPC (Virtual Private Cloud) is properly configured with appropriate subnets, route tables, and security groups.
+
+Security Groups: Define security groups to restrict incoming and outgoing traffic. Allow only necessary ports to be open, such as HTTP/HTTPS for your Flask application and the MySQL port for the database.
+
+User Authentication:
+
+IAM Roles: Leverage AWS Identity and Access Management (IAM) roles for services like Jenkins. Grant the least privilege necessary to perform specific tasks.
+
+Container Security:
+
+Docker Image Scanning: Integrate container image scanning tools into your CI/CD pipeline to identify and address vulnerabilities in your Docker images before deployment.
+
+Jenkins Security:
+
+Pipeline Security: Restrict pipeline access and use credentials securely. Avoid hardcoding sensitive information and use Jenkins credentials or AWS Secrets Manager.
