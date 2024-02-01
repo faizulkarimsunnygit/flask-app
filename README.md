@@ -1,234 +1,89 @@
- 
-# Flask App with MySQL Docker Setup
+
+# Deploy of a 2 tier flask application on EKS with Jenkins CI-CD pipeline
 
 This is a simple Flask app that interacts with a MySQL database. The app allows users to submit messages, which are then stored in the database and displayed on the frontend.
 
 ## Prerequisites
+Docker
+docker-compose 
+AWS EC2 / VM machine 
+EKS (Elastic Kubernetes Service)
 
-Before you begin, make sure you have the following installed:
+## Installation
+1. Docker ️🐋
+2. docker-compose 
+3. aws cli
+4. eksctl 
+5. unzip 
+6. jenkins 🛠️🔧
+7. kubectl ☸️ etc. 
 
-- Docker
-- Git (optional, for cloning the repository)
 
-## Setup
+    
+## Deployment
 
-1. Clone this repository (if you haven't already):
+1. SSH to the EC2 Instance
+2. Install all required updates 
+3. Install Jenkins and make the service enabled and up.
+4. Install docker.io and make it accessable with user jenkins 
+5. Git Clone the repository to the EC2 Machine 
+6. Run the docker compose file by using "docker-compose up -d". it is present inside of the docker compose folder.
+7. log in to the Jenkins. Make user for next time login. goto the pipeline section and add a job. put the trigger section and select "Github webhook". add the "jenkins url/github-webhook" into the github repo settings so that when any push happens trigger will be generated.
+8. Go to the pipeline section and paste the code from the jenkinsfile to the pipeline section. you will find this on the repo. 
+9. Create a IAM role and access token. 
+10. install aws cli and configure it with token.
+11. install eksctl took to create cluster on EKS.
+12. run command eksctl with the desired node and node type.
+13. run kubectl apply -f namespace.yaml to create the namespace.
+14. run the pipeline. 
+if everthing goes ok pipeline will build and deploy the pod to the EKS cluster. 
 
-   ```bash
-   git clone https://github.com/your-username/your-repo-name.git
-   ```
+To Verify Kubernetes pod and Service 
+command 
+kubectl get nodes -n two-tier-ns 
+kubectl get pods -n two-tier-ns -o wide 
+kubectl get all -n two-tier-ns 
 
-2. Navigate to the project directory:
+copy the EXTERNAL-IP from the flask app service and paste it on a browser. 
 
-   ```bash
-   cd your-repo-name
-   ```
 
-3. Create a `.env` file in the project directory to store your MySQL environment variables:
+    
 
-   ```bash
-   touch .env
-   ```
 
-4. Open the `.env` file and add your MySQL configuration:
+## Screenshots
 
-   ```
-   MYSQL_HOST=mysql
-   MYSQL_USER=your_username
-   MYSQL_PASSWORD=your_password
-   MYSQL_DB=your_database
-   ```
+Network Diagram of the Project 
 
-## Usage
+Link -- https://ibb.co/0VXFpXw
 
-1. Start the containers using Docker Compose:
 
-   ```bash
-   docker-compose up --build
-   ```
 
-2. Access the Flask app in your web browser:
+## Documentation
 
-   - Frontend: http://localhost
-   - Backend: http://localhost:5000
+[Documentation](https://faizulkarimsunny.atlassian.net/wiki/external/ZDhhYTY4ZTM3ZDk5NGZjY2E2NWZhNTEwYTMzNzMxYzM)
 
-3. Create the `messages` table in your MySQL database:
 
-   - Use a MySQL client or tool (e.g., phpMyAdmin) to execute the following SQL commands:
-   
-     ```sql
-     CREATE TABLE messages (
-         id INT AUTO_INCREMENT PRIMARY KEY,
-         message TEXT
-     );
-     ```
+# Hi, I'm Faizul Karim! 👋
 
-4. Interact with the app:
 
-   - Visit http://localhost to see the frontend. You can submit new messages using the form.
-   - Visit http://localhost:5000/insert_sql to insert a message directly into the `messages` table via an SQL query.
 
-## Cleaning Up
+## 🚀 About Me
+DevOps Engineer with a robust background in Linux, excelling in orchestrating Docker and Kubernetes environments both in local and Cloud. Specialized in AWS services such as ECS, EKS, and RDS, I ensure the seamless operation of microservices. Proficient in networking and troubleshooting, I contribute to the design and maintenance of scalable architectures. My expertise extends to implementing monitoring solutions with ELK Stack, Prometheus, Grafana, and AWS-native tools. Committed to continuous learning, I stay ahead in the dynamic DevOps landscape, leveraging emerging technologies for innovation.
 
-To stop and remove the Docker containers, press `Ctrl+C` in the terminal where the containers are running, or use the following command:
 
-```bash
-docker-compose down
-```
+## 🛠 Skills
+Terraform, Kubernetes, Docker, Jenkins, Ansible, ECS, EKS, ELK, Grafana, Loki, Prometheus, cAdvisor || AWS, DO|| Red Hat Certified || RHCSA v7, RHCE v7 || RED HAT Virtualization, HA Clustering
 
-## To run this two-tier application using  without docker-compose
 
-- First create a docker image from Dockerfile
-```bash
-docker build -t flaskapp .
-```
+## 🔗 Links
+[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](www.linkedin.com/in/faizulkarim/)
 
-- Now, make sure that you have created a network using following command
-```bash
-docker network create twotier
-```
 
-- Attach both the containers in the same network, so that they can communicate with each other
 
-i) MySQL container 
-```bash
-docker run -d --name mysql -v mysql-data:/var/lib/mysql -v ./message.sql:/docker-entrypoint-initdb.d/message.sql --network=twotier -e MYSQL_DATABASE=mydb -e MYSQL_USER=root -e MYSQL_ROOT_PASSWORD="admin" -p 3360:3360 mysql:5.7
-```
-ii) Backend container
-```bash
-docker run -d --name flaskapp -v mysql-data:/var/lib/mysql -v ./message.sql:/docker-entrypoint-initdb.d/message.sql --network=twotier -e MYSQL_HOST=mysql -e MYSQL_USER=root -e MYSQL_PASSWORD=admin -e MYSQL_DB=mydb -p 5000:5000 flaskapp:latest
-```
+## Badges
 
-## Notes
+Add badges from somewhere like: [shields.io](https://shields.io/)
 
-- Make sure to replace placeholders (e.g., `your_username`, `your_password`, `your_database`) with your actual MySQL configuration.
-
-- This is a basic setup for demonstration purposes. In a production environment, you should follow best practices for security and performance.
-
-- Be cautious when executing SQL queries directly. Validate and sanitize user inputs to prevent vulnerabilities like SQL injection.
-
-- If you encounter issues, check Docker logs and error messages for troubleshooting.
-
-
-
-## To run this two-tier application in EKS Cluster 
-
-- Create namespace "two-tier-ns" before applying manifests.
-
-#### Pre-requisites: 
-  - an EC2 Instance (Note : If Using Ubuntu EC2 Instance instead of Amazon Linux then Make Sure to have **aws-iam-authenticator** installed.)
-
-
-#### Article to Install aws-iam-authenticator :
-```sh
-https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html
-```
-
-#### AWS EKS Setup 
-
-### IAM Setup
-
-1. **Create an IAM User:**
-   - Go to the AWS IAM console.
-   - Create a new IAM user named "eks-admin."
-   - Attach the "AdministratorAccess" policy to this user.
-
-2. **Create Security Credentials:**
-   - After creating the user, generate an Access Key and Secret Access Key for this user. You will need these credentials later.
-
-### EC2 Instance Setup
-
-3. **Launch an EC2 Instance:**
-   - Choose the desired region (e.g., us-west-2).
-   - Launch an Ubuntu instance. Make sure to configure the security group to allow SSH access.
-
-4. **SSH to the EC2 Instance:**
-   - Use your local terminal to SSH into the instance:
-     ```
-     ssh -i <path-to-your-key-file> ubuntu@<instance-public-ip>
-     ```
-
-5. **Install AWS CLI v2:**
-   - Download and install the AWS CLI v2:
-     ```
-     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-     sudo apt install unzip
-     unzip awscliv2.zip
-     sudo ./aws/install -i /usr/local/aws-cli -b /usr/local/bin --update
-     ```
-
-6. **Configure AWS CLI:**
-   - Configure the AWS CLI with the Access Key and Secret Access Key from step 2:
-     ```
-     aws configure
-     ```
-
-### Kubernetes Tools Setup
-
-7. **Install kubectl:**
-   - Download and install kubectl:
-     ```
-     curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
-     chmod +x ./kubectl
-     sudo mv ./kubectl /usr/local/bin
-     kubectl version --short --client
-     ```
-
-8. **Install eksctl:**
-   - Download and install eksctl:
-     ```
-     curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-     sudo mv /tmp/eksctl /usr/local/bin
-     eksctl version
-     ```
-
-### EKS Cluster Setup
-
-9. **Create an EKS Cluster:**
-   - Use eksctl to create the EKS cluster (replace `<cluster-name>` and `<region>` with your desired values):
-     ```
-     eksctl create cluster --name <cluster-name> --region <region> --node-type t2.micro --nodes-min 2 --nodes-max 2
-     ```
-
-10. **Update Kubeconfig:**
-    - Update your kubeconfig to connect to the newly created EKS cluster:
-      ```
-      aws eks update-kubeconfig --region <region> --name <cluster-name>
-      ```
-
-11. **Verify Nodes:**
-    - Verify that the EKS nodes are running:
-      ```
-      kubectl get nodes
-      ```
-
-### Deploying and Managing Applications
-
-12. **Run Manifests:**
-    - Create a Kubernetes namespace (replace `<namespace>` with your desired namespace name):
-      ```
-      kubectl create namespace <namespace>
-      ```
-    - Apply your Kubernetes manifests (replace `<path-to-manifests>` with the path to your manifests):
-      ```
-      kubectl apply -f <path-to-manifests>
-      ```
-
-13. **Delete Manifests:**
-    - If needed, delete the deployed resources:
-      ```
-      kubectl delete -f <path-to-manifests>
-      ```
-
-### Cleaning Up
-
-14. **Delete EKS Cluster:**
-    - When you're done with your EKS cluster, you can delete it:
-      ```
-      eksctl delete cluster --name <cluster-name> --region <region>
-      ```
-
-This guide should help you set up and manage an AWS EKS cluster step by step. Make sure to replace `<cluster-name>`, `<region>`, `<namespace>`, and `<path-to-manifests>` with your specific values and paths as needed.
-
-
-
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+[![AGPL License](https://img.shields.io/badge/license-AGPL-blue.svg)](http://www.gnu.org/licenses/agpl-3.0)
